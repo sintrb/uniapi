@@ -6,7 +6,7 @@ import json
 import random
 import time
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 
 class IRApiBase(object):
@@ -56,6 +56,7 @@ class IRIRApi(IRApiBase):
             raise ValueError("Has not apiurl")
 
     def doapi(self, apiname, data):
+
         if isinstance(data, dict):
             if 'appid' not in data:
                 data['appid'] = self.appid
@@ -85,8 +86,8 @@ def main():
 
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument('-u', '--apiurl', help='the API base url', required=True)
-    parser.add_argument('-a', '--appid', help='the APPID', required=True)
-    parser.add_argument('-k', '--appkey', help='the APPKEY', required=True)
+    parser.add_argument('-a', '--appid', help='the APPID', required=False)
+    parser.add_argument('-k', '--appkey', help='the APPKEY', required=False)
     parser.add_argument('-i', '--apiname', help='the api name', required=True)
     parser.add_argument('-d', '--data', help='the json data')
     args = parser.parse_args()
@@ -97,6 +98,14 @@ def main():
     data = {
         k: v[0] for k, v in param.items()
     }
+    for k in data:
+        v = data[k]
+        if v == 'STDIN':
+            import sys
+            nv = sys.stdin.read()
+            if type(nv) != type(''):
+                nv = nv.decode()
+            data[k] = nv.strip()
     r = api.doapi(args.apiname, data=data)
 
     print(json.dumps(r, ensure_ascii=False))
